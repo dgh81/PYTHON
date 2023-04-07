@@ -1,0 +1,71 @@
+    q="""
+;WITH T AS
+(
+SELECT TOP 100 *,  
+row_number() OVER (ORDER BY tconst) AS RN
+FROM 
+(SELECT GENRESTITLES.tconst, GENRESTITLES.FK_genreID, TITLES.primaryTitle, GENRES.genreName, GENRES.ID FROM GENRESTITLES
+JOIN TITLES ON GENRESTITLES.tconst = TITLES.tconst
+JOIN GENRES ON GENRES.ID = GENRESTITLES.FK_genreID
+WHERE primaryTitle LIKE '%""" + searchtext + "%'" + """
+) AS TT
+)
+SELECT * FROM T
+WHERE RN BETWEEN """ + str(offset) + " AND " + str(limit+offset-1) + ""
+
+--------------------------------------------------------------------------------
+
+USE IMDB;
+
+IF OBJECT_ID(N'tempdb..#s_results') IS NOT NULL
+BEGIN
+DROP TABLE #s_results
+END
+GO
+
+;WITH tab1 AS
+(
+SELECT TOP 100 *   
+FROM 
+(SELECT GENRESTITLES.tconst, GENRES.genreName FROM GENRESTITLES
+JOIN TITLES ON GENRESTITLES.tconst = TITLES.tconst
+JOIN GENRES ON GENRES.ID = GENRESTITLES.FK_genreID
+WHERE primaryTitle LIKE '%berlin%'
+) AS tab2
+)
+select * into #s_results from tab1
+;WITH tab3 AS
+(
+SELECT DISTINCT tconst,
+STUFF((SELECT ', ' + genreName FROM #s_results g WHERE t.tconst = g.tconst FOR XML PATH('')),1,1,'') genreNames
+FROM #s_results t
+)
+select *, row_number() OVER (ORDER BY tab3.tconst) AS RN
+from tab3
+JOIN TITLES ON TITLES.tconst = tab3.tconst
+JOIN TITLETYPES ON TITLETYPES.titleTypeID = TITLES.titleType
+
+-----------------------------------------------------------
+
+    q="""
+;WITH tab1 AS
+(
+SELECT TOP 100 *,  
+row_number() OVER (ORDER BY tconst) AS RN
+FROM 
+(SELECT GENRESTITLES.tconst, GENRESTITLES.FK_genreID, TITLES.primaryTitle, GENRES.genreName, GENRES.ID FROM GENRESTITLES
+JOIN TITLES ON GENRESTITLES.tconst = TITLES.tconst
+JOIN GENRES ON GENRES.ID = GENRESTITLES.FK_genreID
+WHERE primaryTitle LIKE '%""" + searchtext + "%'" + """
+) AS tab2
+),
+
+tab3 as 
+(
+SELECT * FROM tab1
+WHERE RN BETWEEN """ + str(offset) + " AND " + str(limit+offset-1) + ")" + """
+
+SELECT DISTINCT *,
+STUFF((SELECT ', ' + genreName FROM tab3 g WHERE g.ID = t.FK_genreID FOR XML PATH('')),1,1,'') genreNames
+FROM tab3 t
+"""

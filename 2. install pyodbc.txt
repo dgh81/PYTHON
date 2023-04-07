@@ -1,0 +1,2 @@
+Terminal:
+pip install pyodbc
