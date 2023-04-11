@@ -45,11 +45,11 @@ professionsIndex = {'actor': 1,
 'production_department': 41,
 'choreographer': 42,
 'electrical_department': 43,
-'': 'NULL'}
+'': '44'}
 
 def CreateNamesProfessions():
     global records
-    with open("name_basics_data_13.tsv", 'r', encoding='UTF-8') as f:
+    with open("data_13.tsv", 'r', encoding='UTF-8') as f:
         lines = f.readlines()
         for i in range(0, len(lines)):
             # print(i)

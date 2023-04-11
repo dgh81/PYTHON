@@ -45,8 +45,12 @@ def my_display(offset, searchtext):
 
     #TODO Skal kun køres een gang.... DONE!
     if not isResultsCreated:
-        q = "EXEC search_titles_procedure @searchtext = '" + searchtext + "'"
-        cursor.execute(q)
+        # q = "EXEC search_titles_procedure @searchtext = '" + searchtext + "'"
+        # cursor.execute(q)
+
+        q = "EXEC search_titles_procedure @searchtext = ?"
+        cursor.execute(q, (searchtext))
+        
         isResultsCreated = True
         q="SELECT count(*) FROM ##final_row_results"
         r_set=cursor.execute(q)
